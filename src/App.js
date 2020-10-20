@@ -1,26 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react';
+import Board from './component/Screen/Board';
+import io from 'socket.io-client';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const socket = io('localhost:6969');
+
+export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      dataBoard: [],
+    }
+  }
+
+  componentWillMount() {
+    socket.on('getData', res => this.setState({dataBoard: res.dataBoard})) 
+  }
+
+  componentDidUpdate() {
+    socket.on('sendData', res=> this.setState({dataBoard: res.dataBoard})); 
+  }
+
+  updateData = (data) => {
+    socket.emit("updateData", data);
+  }
+  
+  render () {
+    const { dataBoard } = this.state;
+    return (
+      <Board dataBoard={dataBoard} updateData={data => this.updateData(data)}/>
+    )
+  }
 }
-
-export default App;
